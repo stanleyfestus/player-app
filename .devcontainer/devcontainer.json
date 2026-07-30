@@ -1,0 +1,33 @@
+{
+  "name": "football-agency",
+  "dockerComposeFile": [
+    "docker-compose.yml",
+    "../docker-compose.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+
+  "forwardPorts": [3000, 5173, 5432],
+  "portsAttributes": {
+    "3000": { "label": "NestJS API" },
+    "5173": { "label": "React (Vite)" },
+    "5432": { "label": "Postgres" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+
+  "remoteUser": "node",
+
+  // Installs are pinned + script-restricted; see SECURITY.md at the repo root.
+  "postCreateCommand": "bash .devcontainer/post-create.sh"
+}
