@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -22,39 +23,60 @@ export default function Nav() {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
+  // Only used on narrow screens — the CSS hides the toggle button (and
+  // ignores this state) above the phone breakpoint, so it has no effect
+  // on desktop.
+  const [open, setOpen] = useState(false);
+  const closeMenu = () => setOpen(false);
+
   const handleLogout = () => {
     const wasAdmin = role === 'admin';
     logout();
+    closeMenu();
     navigate(wasAdmin ? '/admin' : '/login');
   };
 
   return (
     <nav className="nav">
-      <Link to="/">Home</Link>
+      <div className="nav-bar">
+        <Link to="/" onClick={closeMenu}>Home</Link>
+        <button
+          className="nav-toggle"
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Toggle menu"
+          aria-expanded={open}
+        >
+          ☰
+        </button>
+      </div>
 
-      {role === null && (
-        <>
-          <Link to="/register">Register as a Player</Link>
-          <Link to="/login">Player Login</Link>
-          <Link to="/admin">Admin</Link>
-        </>
-      )}
+      <div className={`nav-links${open ? ' open' : ''}`}>
+        {role === null && (
+          <>
+            <Link to="/register" onClick={closeMenu}>Register as a Player</Link>
+            <Link to="/login" onClick={closeMenu}>Player Login</Link>
+            <Link to="/admin" onClick={closeMenu}>Admin</Link>
+          </>
+        )}
 
-      {role === 'player' && <Link to="/profile">My Profile</Link>}
+        {role === 'player' && (
+          <Link to="/profile" onClick={closeMenu}>My Profile</Link>
+        )}
 
-      {role === 'admin' && (
-        <>
-          <Link to="/players">Player Directory</Link>
-          <Link to="/admin/dashboard">Admin Dashboard</Link>
-        </>
-      )}
+        {role === 'admin' && (
+          <>
+            <Link to="/players" onClick={closeMenu}>Player Directory</Link>
+            <Link to="/admin/dashboard" onClick={closeMenu}>Admin Dashboard</Link>
+          </>
+        )}
 
-      {role !== null && (
-        <span className="nav-account">
-          {email && <span className="avatar" title={email}>{initialsFrom(email)}</span>}
-          <button onClick={handleLogout}>Log out</button>
-        </span>
-      )}
+        {role !== null && (
+          <span className="nav-account">
+            {email && <span className="avatar" title={email}>{initialsFrom(email)}</span>}
+            <button onClick={handleLogout}>Log out</button>
+          </span>
+        )}
+      </div>
     </nav>
   );
 }

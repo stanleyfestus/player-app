@@ -6,15 +6,38 @@ body {
 }
 .nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1rem 2rem;
+  gap: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   background: #111;
 }
 .nav a {
   color: #fff;
   text-decoration: none;
   font-size: 0.95rem;
+}
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
 }
 .nav-account {
   display: flex;
@@ -27,7 +50,7 @@ body {
   border: 1px solid #555;
   color: #fff;
   border-radius: 4px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.85rem;
   cursor: pointer;
 }
@@ -42,6 +65,7 @@ body {
   color: #fff;
   font-size: 0.75rem;
   font-weight: bold;
+  flex-shrink: 0;
 }
 .container {
   max-width: 900px;
@@ -62,13 +86,13 @@ body {
 }
 .form input,
 .form textarea {
-  padding: 0.5rem;
+  padding: 0.6rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 .form button {
-  padding: 0.6rem;
+  padding: 0.7rem;
   font-size: 1rem;
   cursor: pointer;
 }
@@ -88,12 +112,20 @@ body {
 }
 .filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+}
+.filters button {
+  padding: 0.5rem 0.75rem;
 }
 .filters button.active {
   font-weight: bold;
   text-decoration: underline;
+}
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 table {
   width: 100%;
@@ -101,6 +133,54 @@ table {
 }
 th, td {
   text-align: left;
-  padding: 0.5rem;
+  padding: 0.6rem 0.5rem;
   border-bottom: 1px solid #e5e5e5;
+  white-space: nowrap;
+}
+td button {
+  padding: 0.4rem 0.6rem;
+  margin-right: 0.3rem;
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  .container {
+    padding: 0 1rem;
+    margin: 1rem auto;
+  }
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 1rem;
+  }
+  .nav-bar {
+    justify-content: space-between;
+  }
+  .nav-toggle {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-account {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+  .form {
+    max-width: 100%;
+  }
+  .form button,
+  .filters button,
+  .nav-account button {
+    min-height: 44px; /* comfortable tap target */
+  }
 }

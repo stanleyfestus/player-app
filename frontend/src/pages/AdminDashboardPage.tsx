@@ -52,6 +52,7 @@ export default function AdminDashboardPage() {
       ) : !players?.length ? (
         <p>No profiles in this category.</p>
       ) : (
+        <div className="table-wrapper">
         <table>
           <thead>
             <tr>
@@ -89,6 +90,7 @@ export default function AdminDashboardPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );
