@@ -1,17 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
-
-interface Player {
-  id: string;
-  fullName: string;
-  email: string;
-  position: string;
-  age?: number;
-  club?: string;
-  bio?: string;
-  videoUrl?: string;
-  status: string;
-}
 
 const statusMessage: Record<string, string> = {
   PENDING: 'Your profile is still waiting for review.',
@@ -20,18 +8,17 @@ const statusMessage: Record<string, string> = {
 };
 
 export default function MyProfilePage() {
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [loading, setLoading] = useState(true);
+  // useQuery replaces the old useState+useEffect+loading dance: give it a
+  // cache key ('my-profile') and a function that fetches the data, and it
+  // tracks loading/error/data for you, plus caches the result so
+  // navigating away and back doesn't necessarily re-fetch immediately.
+  const { data: player, isLoading, isError } = useQuery({
+    queryKey: ['my-profile'],
+    queryFn: api.getMyProfile,
+  });
 
-  useEffect(() => {
-    api
-      .getMyProfile()
-      .then(setPlayer)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p>Loading your profile…</p>;
-  if (!player) return <p>Could not load your profile.</p>;
+  if (isLoading) return <p>Loading your profile…</p>;
+  if (isError || !player) return <p>Could not load your profile.</p>;
 
   return (
     <div>

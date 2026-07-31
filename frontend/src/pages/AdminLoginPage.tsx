@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, saveSession } from '../api';
+import { api } from '../api';
+import { useAuthStore } from '../store/authStore';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      const { accessToken } = await api.adminLogin(email, password);
-      saveSession(accessToken, 'admin', email);
+      const { accessToken } = await api.adminLogin({ email, password });
+      login(accessToken, 'admin', email);
       navigate('/admin/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

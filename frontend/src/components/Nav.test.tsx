@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, afterEach } from 'vitest';
 import Nav from './Nav';
+import { useAuthStore } from '../store/authStore';
 
 function renderNav() {
   return render(
@@ -13,7 +14,12 @@ function renderNav() {
 
 describe('Nav', () => {
   afterEach(() => {
-    localStorage.clear();
+    // Reset the store directly, the same way the real logout() does —
+    // now that state lives in Zustand rather than being re-read from
+    // localStorage on every render, tests set it up the same way the app
+    // itself does: through the store's own API, not by poking
+    // localStorage and hoping something re-reads it.
+    useAuthStore.setState({ token: null, role: null, email: null });
   });
 
   it('shows the logged-out links and no logout button when nobody is signed in', () => {
@@ -28,9 +34,7 @@ describe('Nav', () => {
   });
 
   it('shows My Profile and an avatar for a logged-in player, but no admin links', () => {
-    localStorage.setItem('authToken', 'fake-token');
-    localStorage.setItem('authRole', 'player');
-    localStorage.setItem('authEmail', 'alex.doe@example.com');
+    useAuthStore.getState().login('fake-token', 'player', 'alex.doe@example.com');
 
     renderNav();
 
@@ -42,9 +46,7 @@ describe('Nav', () => {
   });
 
   it('shows Player Directory and Admin Dashboard for a logged-in admin', () => {
-    localStorage.setItem('authToken', 'fake-token');
-    localStorage.setItem('authRole', 'admin');
-    localStorage.setItem('authEmail', 'owner@example.com');
+    useAuthStore.getState().login('fake-token', 'admin', 'owner@example.com');
 
     renderNav();
 

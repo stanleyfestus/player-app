@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { clearSession, getEmail, getRole } from '../api';
+import { useAuthStore } from '../store/authStore';
 
 function initialsFrom(email: string) {
   // Cheap, good-enough avatar: first letter of the email, plus the first
@@ -10,19 +10,22 @@ function initialsFrom(email: string) {
   return initials.toUpperCase();
 }
 
-// The nav reads localStorage directly on every render rather than holding
-// its own state. That's fine here because a full page navigation (or at
-// least a route change) always happens right after login/logout, which
-// re-renders this component anyway — we don't need it to react to changes
-// happening in some *other* tab.
+// Nav now reads from the Zustand store instead of localStorage directly.
+// The difference matters: this component re-renders automatically the
+// instant login()/logout() is called anywhere in the app, because it's
+// subscribed to the store — it doesn't have to wait for some unrelated
+// re-render to happen to "notice" the change, the way reading
+// localStorage directly would.
 export default function Nav() {
-  const role = getRole();
-  const email = getEmail();
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearSession();
-    navigate(role === 'admin' ? '/admin' : '/login');
+    const wasAdmin = role === 'admin';
+    logout();
+    navigate(wasAdmin ? '/admin' : '/login');
   };
 
   return (

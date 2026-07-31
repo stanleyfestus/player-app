@@ -1,42 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import type { PlayerStatus } from '../types';
 
-interface Player {
-  id: string;
-  fullName: string;
-  email: string;
-  position: string;
-  status: string;
-}
+const FILTERS = ['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as const;
+type Filter = (typeof FILTERS)[number];
 
 export default function AdminDashboardPage() {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [filter, setFilter] = useState('PENDING');
-  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<Filter>('ALL');
+  const queryClient = useQueryClient();
 
-  const load = () => {
-    setLoading(true);
-    api
-      .adminListPlayers(filter)
-      .then(setPlayers)
-      .finally(() => setLoading(false));
-  };
+  // 'ALL' isn't a real status in the database — it just means "don't
+  // filter," so we pass undefined to the API in that case instead of the
+  // literal string. The filter is part of the query key so switching tabs
+  // is its own cached query, not a manual refetch.
+  const { data: players, isLoading } = useQuery({
+    queryKey: ['admin-players', filter],
+    queryFn: () =>
+      api.adminListPlayers(filter === 'ALL' ? undefined : (filter as PlayerStatus)),
+  });
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
-
-  const updateStatus = async (id: string, status: string) => {
-    await api.adminUpdateStatus(id, status);
-    load();
-  };
+  // useMutation is for the "changing something" half of TanStack Query
+  // (as opposed to useQuery, which is for "fetching something"). Its
+  // onSuccess here tells the cache "any query tagged 'admin-players' is
+  // now stale, go refetch it" — which is what makes the table refresh
+  // after an approve/reject, without us manually calling load() again.
+  const updateStatus = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: PlayerStatus }) =>
+      api.adminUpdateStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-players'] });
+    },
+  });
 
   return (
     <div>
       <h1>Admin Dashboard</h1>
       <div className="filters">
-        {['PENDING', 'APPROVED', 'REJECTED'].map((s) => (
+        {FILTERS.map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
@@ -46,9 +47,9 @@ export default function AdminDashboardPage() {
           </button>
         ))}
       </div>
-      {loading ? (
+      {isLoading ? (
         <p>Loading…</p>
-      ) : !players.length ? (
+      ) : !players?.length ? (
         <p>No profiles in this category.</p>
       ) : (
         <table>
@@ -57,6 +58,7 @@ export default function AdminDashboardPage() {
               <th>Name</th>
               <th>Position</th>
               <th>Email</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -66,14 +68,19 @@ export default function AdminDashboardPage() {
                 <td>{p.fullName}</td>
                 <td>{p.position}</td>
                 <td>{p.email}</td>
+                <td>{p.status}</td>
                 <td>
                   {p.status !== 'APPROVED' && (
-                    <button onClick={() => updateStatus(p.id, 'APPROVED')}>
+                    <button
+                      onClick={() => updateStatus.mutate({ id: p.id, status: 'APPROVED' })}
+                    >
                       Approve
                     </button>
                   )}
                   {p.status !== 'REJECTED' && (
-                    <button onClick={() => updateStatus(p.id, 'REJECTED')}>
+                    <button
+                      onClick={() => updateStatus.mutate({ id: p.id, status: 'REJECTED' })}
+                    >
                       Reject
                     </button>
                   )}
