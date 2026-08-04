@@ -73,6 +73,7 @@ export default function AdminDashboardPage() {
                 <td>
                   {p.status !== 'APPROVED' && (
                     <button
+                      className="approve-btn"
                       onClick={() => updateStatus.mutate({ id: p.id, status: 'APPROVED' })}
                     >
                       Approve
@@ -80,6 +81,7 @@ export default function AdminDashboardPage() {
                   )}
                   {p.status !== 'REJECTED' && (
                     <button
+                      className="reject-btn"
                       onClick={() => updateStatus.mutate({ id: p.id, status: 'REJECTED' })}
                     >
                       Reject

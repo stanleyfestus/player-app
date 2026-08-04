@@ -1,77 +1,23 @@
+:root {
+  --brand-green: #1f7a3d;
+  --brand-green-dark: #14532d;
+  --brand-green-tint: #eaf7ee;
+  --brand-gold: #e0a030;
+  --ink: #111111;
+  --card-border: #e5e5e5;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   color: #1a1a1a;
   background: #f7f7f8;
+  overflow-x: hidden;
 }
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem 1.5rem;
-  padding: 1rem 1.25rem;
-  background: #111;
-}
-.nav a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-.nav-bar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.nav-toggle {
-  display: none;
-  background: transparent;
-  border: 1px solid #555;
-  color: #fff;
-  border-radius: 4px;
-  padding: 0.35rem 0.6rem;
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.nav-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem 1.5rem;
-}
-.nav-account {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-left: auto;
-}
-.nav-account button {
-  background: transparent;
-  border: 1px solid #555;
-  color: #fff;
-  border-radius: 4px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 50%;
-  background: #3b82f6;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-.container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
-}
+
+/* Everything below styles plain, non-Chakra pages (Register/Login/
+   Directory/Admin Dashboard) — Nav and HomePage moved to Chakra UI
+   components and no longer use any of these classes. */
+
 .form {
   display: flex;
   flex-direction: column;
@@ -94,7 +40,15 @@ body {
 .form button {
   padding: 0.7rem;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  background: var(--brand-green);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}
+.form button:hover {
+  background: var(--brand-green-dark);
 }
 .error {
   color: #b91c1c;
@@ -117,11 +71,37 @@ body {
   margin-bottom: 1rem;
 }
 .filters button {
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
 }
 .filters button.active {
-  font-weight: bold;
-  text-decoration: underline;
+  background: var(--brand-green);
+  border-color: var(--brand-green);
+  color: #fff;
+  font-weight: 600;
+}
+.approve-btn,
+.reject-btn {
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+.approve-btn {
+  background: var(--brand-green);
+}
+.approve-btn:hover {
+  background: var(--brand-green-dark);
+}
+.reject-btn {
+  background: #b91c1c;
+}
+.reject-btn:hover {
+  background: #8f1616;
 }
 .table-wrapper {
   overflow-x: auto;
@@ -138,49 +118,17 @@ th, td {
   white-space: nowrap;
 }
 td button {
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem 0.7rem;
   margin-right: 0.3rem;
 }
 
 /* Phones */
 @media (max-width: 600px) {
-  .container {
-    padding: 0 1rem;
-    margin: 1rem auto;
-  }
-  .nav {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.75rem 1rem;
-  }
-  .nav-bar {
-    justify-content: space-between;
-  }
-  .nav-toggle {
-    display: block;
-  }
-  .nav-links {
-    display: none;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-  }
-  .nav-links.open {
-    display: flex;
-  }
-  .nav-account {
-    width: 100%;
-    margin-left: 0;
-    justify-content: space-between;
-  }
   .form {
     max-width: 100%;
   }
   .form button,
-  .filters button,
-  .nav-account button {
+  .filters button {
     min-height: 44px; /* comfortable tap target */
   }
 }

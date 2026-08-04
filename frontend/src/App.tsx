@@ -7,26 +7,45 @@ import MyProfilePage from './pages/MyProfilePage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PageContainer from './components/PageContainer';
 import Nav from './components/Nav';
 
 export default function App() {
   return (
     <div>
       <Nav />
-      <main className="container">
+      <main>
         <Routes>
+          {/* Home is the one page NOT wrapped in PageContainer — its hero
+              sections need to span the full viewport width. */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/register"
+            element={
+              <PageContainer>
+                <RegisterPage />
+              </PageContainer>
+            }
+          />
 
           {/* Player login redirects to /profile on success (see
               PlayerLoginPage). /profile itself is guarded below: anyone
               who isn't logged in as a player gets bounced back here. */}
-          <Route path="/login" element={<PlayerLoginPage />} />
+          <Route
+            path="/login"
+            element={
+              <PageContainer>
+                <PlayerLoginPage />
+              </PageContainer>
+            }
+          />
           <Route
             path="/profile"
             element={
               <ProtectedRoute allowedRole="player" redirectTo="/login">
-                <MyProfilePage />
+                <PageContainer>
+                  <MyProfilePage />
+                </PageContainer>
               </ProtectedRoute>
             }
           />
@@ -36,12 +55,21 @@ export default function App() {
               an admin session — the backend enforces this independently
               via AdminAuthGuard, this is just so the frontend doesn't
               show a page that's about to fail anyway. */}
-          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route
+            path="/admin"
+            element={
+              <PageContainer>
+                <AdminLoginPage />
+              </PageContainer>
+            }
+          />
           <Route
             path="/players"
             element={
               <ProtectedRoute allowedRole="admin" redirectTo="/admin">
-                <DirectoryPage />
+                <PageContainer>
+                  <DirectoryPage />
+                </PageContainer>
               </ProtectedRoute>
             }
           />
@@ -49,7 +77,9 @@ export default function App() {
             path="/admin/dashboard"
             element={
               <ProtectedRoute allowedRole="admin" redirectTo="/admin">
-                <AdminDashboardPage />
+                <PageContainer>
+                  <AdminDashboardPage />
+                </PageContainer>
               </ProtectedRoute>
             }
           />
