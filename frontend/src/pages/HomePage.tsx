@@ -12,13 +12,13 @@ import {
   Input,
   Textarea,
   VStack,
+  HStack,
   Flex,
   Image,
 } from '@chakra-ui/react';
 
 // Placeholder — swap this for your agency's real inbox before going live.
-// The contact form below builds a mailto: link client-side, so there's no
-// backend involved; whatever address is here is where messages will open.
+// The contact form builds a mailto: link client-side (no backend involved).
 const CONTACT_EMAIL = 'contact@yourfootballagency.com';
 
 type ContactForm = {
@@ -28,36 +28,64 @@ type ContactForm = {
   message: string;
 };
 
-// Small reusable card for the "How it works" / "What we do" grids. The top
-// border color is passed in so each section's cards can pick up an accent
-// that matches that section's background band. `image` is optional — the
-// "How it works" cards don't have one, the "What we do" cards do.
-function InfoCard({
+// Numbered step: a colored circle + title + one line. Used in "How it works".
+function Step({
+  n,
+  color,
   title,
   body,
-  accent = 'brand.500',
-  image,
 }: {
+  n: number;
+  color: string;
   title: string;
   body: string;
-  accent?: string;
-  image?: string;
+}) {
+  return (
+    <VStack spacing={3} textAlign="center" px={2}>
+      <Flex
+        align="center"
+        justify="center"
+        w={14}
+        h={14}
+        borderRadius="full"
+        bg={color}
+        color="white"
+        fontSize="2xl"
+        fontWeight="bold"
+      >
+        {n}
+      </Flex>
+      <Heading as="h3" size="md">
+        {title}
+      </Heading>
+      <Text color="gray.600">{body}</Text>
+    </VStack>
+  );
+}
+
+// Service card: photo on top, colored accent underline, short copy.
+function ServiceCard({
+  image,
+  accent,
+  title,
+  body,
+}: {
+  image: string;
+  accent: string;
+  title: string;
+  body: string;
 }) {
   return (
     <Box
       bg="white"
-      border="1px solid"
-      borderColor="gray.200"
-      borderTop="3px solid"
-      borderTopColor={accent}
-      borderRadius="md"
+      borderRadius="xl"
       overflow="hidden"
-      textAlign="center"
+      boxShadow="md"
+      transition="transform 0.15s ease"
+      _hover={{ transform: 'translateY(-4px)' }}
     >
-      {image && (
-        <Image src={image} alt="" h="140px" w="100%" objectFit="cover" />
-      )}
-      <Box p={5}>
+      <Image src={image} alt="" h="150px" w="100%" objectFit="cover" />
+      <Box p={5} borderBottom="4px solid" borderBottomColor={accent}>
         <Heading as="h3" size="sm" mb={2}>
           {title}
         </Heading>
@@ -95,215 +123,217 @@ export default function HomePage() {
 
   return (
     <Box>
-      {/* Hero — full viewport width. This page is deliberately NOT wrapped
-          in the app's PageContainer (see App.tsx), so there's no ancestor
-          padding to fight with here; that mismatch was the root cause of
-          the old mobile-centering bug. */}
+      {/* Hero: one bold gradient, one headline, one button — the "less is
+          more" pattern. Photos on the right only appear from md up. */}
       <Box
-        position="relative"
-        overflow="hidden"
-        textAlign="center"
+        bgGradient="linear(to-br, brand.700, brand.500 45%, sky.500)"
         color="white"
-        px={{ base: 4, md: 6 }}
-        py={{ base: 10, md: 20 }}
-        // Plain `style` here on purpose: Chakra's `backgroundImage` prop
-        // tries to parse gradient strings looking for theme color tokens
-        // (e.g. "brand.500") and chokes on a raw multi-layer
-        // gradient+url() background like this one. `style` skips that
-        // parsing entirely and is passed straight to the DOM.
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(8,20,10,0.6), rgba(8,20,10,0.8)), url('/images/pitch-texture.svg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        overflow="hidden"
+        position="relative"
       >
-        {/* Decorative ball graphic, drawn in SVG rather than a stock photo
-            so it renders crisply at any size with no external asset. */}
-        <Box
-          as="svg"
-          position="absolute"
-          right="-2.5rem"
-          bottom="-3.5rem"
-          w={{ base: '120px', md: '180px' }}
-          h={{ base: '120px', md: '180px' }}
-          opacity={0.16}
-          pointerEvents="none"
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <circle cx="100" cy="100" r="96" fill="#fff" stroke="#111" strokeWidth={4} />
-          <polygon points="100,60 122,76 114,102 86,102 78,76" fill="#111" />
-          <polygon points="100,60 78,76 55,68 60,40 100,30" fill="none" stroke="#111" strokeWidth={4} />
-          <polygon points="100,60 122,76 145,68 140,40 100,30" fill="none" stroke="#111" strokeWidth={4} />
-          <polygon points="78,76 55,68 40,95 60,118 86,102" fill="none" stroke="#111" strokeWidth={4} />
-          <polygon points="122,76 145,68 160,95 140,118 114,102" fill="none" stroke="#111" strokeWidth={4} />
-          <polygon points="86,102 60,118 70,150 100,160 100,130" fill="none" stroke="#111" strokeWidth={4} />
-          <polygon points="114,102 140,118 130,150 100,160 100,130" fill="none" stroke="#111" strokeWidth={4} />
-        </Box>
-
-        <Container maxW="640px" position="relative" p={0}>
-          <Heading as="h1" size={{ base: 'lg', md: 'xl' }} mb={4} lineHeight="1.25">
-            Talent brought you here. Guidance takes you further.
-          </Heading>
-          <Text mb={7} fontSize={{ base: 'md', md: 'lg' }} color="whiteAlpha.900">
-            We help young football talents get seen. Build your profile, get
-            reviewed by our team, and get listed where clubs and scouts are
-            looking.
-          </Text>
-          <Button
-            as={RouterLink}
-            to="/register"
-            bg="white"
-            color="ink.500"
-            borderRadius="full"
-            px={8}
-            py={6}
-            fontWeight="bold"
-            _hover={{ bg: 'brand.50' }}
+        <Container maxW="1000px" py={{ base: 14, md: 24 }}>
+          <Flex
+            direction={{ base: 'column', md: 'row' }}
+            align="center"
+            gap={{ base: 0, md: 12 }}
           >
-            Get Started
-          </Button>
-        </Container>
-      </Box>
-
-      {/* Stat band — also full width, sits directly under the hero. */}
-      <Box bg="ink.500" color="white" py={4}>
-        <Flex
-          maxW="640px"
-          mx="auto"
-          align="center"
-          justify="center"
-          gap={3}
-          textAlign="center"
-          direction={{ base: 'column', md: 'row' }}
-          px={4}
-        >
-          <Text as="span" fontSize="xl" aria-hidden="true">
-            ⚽
-          </Text>
-          <Text color="gray.300" fontSize="sm">
-            From first touch to first contract — we're with you every step.
-          </Text>
-        </Flex>
-      </Box>
-
-      {/* From here down, each section is its own full-width color band
-          (same pattern as the hero/stat-band above: a full-width Box with
-          an inner Container for the centered, max-width content) instead
-          of one shared gray Container — that's what gives the page its
-          alternating color rhythm. */}
-      <Box bg="brand.50" py={10}>
-        <Container maxW="900px">
-          <Heading as="h2" size="md" textAlign="center" mb={6}>
-            About us
-          </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={8} alignItems="center">
-            <VStack align="stretch" spacing={4}>
-              <Text color="gray.700" lineHeight="1.6">
-                We're built around one idea: every player deserves someone
-                looking out for their career, not just their next match.
-                From registration to representation, we handle the details
-                so you can focus on your game.
+            <Box flex={1} textAlign={{ base: 'center', md: 'left' }}>
+              <Heading
+                as="h1"
+                size={{ base: 'xl', md: '2xl' }}
+                lineHeight="1.1"
+                mb={5}
+              >
+                Where football talent gets seen.
+              </Heading>
+              <Text
+                fontSize={{ base: 'md', md: 'xl' }}
+                color="whiteAlpha.900"
+                mb={8}
+                maxW="480px"
+                mx={{ base: 'auto', md: 0 }}
+              >
+                Create your player profile, get reviewed by our team, and be
+                found by clubs and scouts.
               </Text>
-              <Text color="gray.700" lineHeight="1.6">
-                We believe footballers need trusted, professional guidance
-                from an early age — long before the big decisions land on
-                their desk.
-              </Text>
-            </VStack>
-            <Box
-              as="blockquote"
-              bg="white"
-              borderLeft="4px solid"
-              borderLeftColor="gold.500"
-              borderRadius="md"
-              p={6}
-              fontSize="lg"
-              fontStyle="italic"
-              color="gray.800"
-            >
-              “Our players' success is our best introduction.”
+              <HStack
+                spacing={3}
+                justify={{ base: 'center', md: 'flex-start' }}
+                wrap="wrap"
+              >
+                <Button
+                  as={RouterLink}
+                  to="/register"
+                  size="lg"
+                  bg="gold.500"
+                  color="ink.500"
+                  borderRadius="full"
+                  px={8}
+                  _hover={{ bg: 'gold.50' }}
+                >
+                  Register as a player
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/login"
+                  size="lg"
+                  variant="outline"
+                  color="white"
+                  borderColor="whiteAlpha.700"
+                  borderRadius="full"
+                  px={8}
+                  _hover={{ bg: 'whiteAlpha.200' }}
+                >
+                  Log in
+                </Button>
+              </HStack>
             </Box>
-          </SimpleGrid>
+
+            <Box
+              flex={1}
+              display={{ base: 'none', md: 'block' }}
+              position="relative"
+              h="340px"
+            >
+              <Image
+                src="/images/services/full-player-support.avif"
+                alt=""
+                position="absolute"
+                top={0}
+                right={0}
+                w="75%"
+                h="200px"
+                objectFit="cover"
+                borderRadius="2xl"
+                boxShadow="2xl"
+                border="4px solid white"
+              />
+              <Image
+                src="/images/services/career-advice.avif"
+                alt=""
+                position="absolute"
+                bottom={0}
+                left={0}
+                w="65%"
+                h="180px"
+                objectFit="cover"
+                borderRadius="2xl"
+                boxShadow="2xl"
+                border="4px solid white"
+              />
+            </Box>
+          </Flex>
         </Container>
       </Box>
 
-      <Box bg="white" py={10}>
+      {/* How it works — three colored steps, nothing else. */}
+      <Box bg="white" py={{ base: 12, md: 16 }}>
         <Container maxW="900px">
-          <Heading as="h2" size="md" textAlign="center" mb={6}>
+          <Heading as="h2" size="lg" textAlign="center" mb={10}>
             How it works
           </Heading>
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={5}>
-            <InfoCard
-              accent="brand.500"
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
+            <Step
+              n={1}
+              color="brand.500"
               title="Build your profile"
-              body="Share your position, club history, and highlight video in minutes."
+              body="Add your position, club, bio and a highlight video."
             />
-            <InfoCard
-              accent="brand.500"
+            <Step
+              n={2}
+              color="gold.500"
               title="Get reviewed"
-              body="Our team checks every profile before it goes into the directory."
+              body="Our team checks every profile before it goes live."
             />
-            <InfoCard
-              accent="brand.500"
+            <Step
+              n={3}
+              color="sky.500"
               title="Get discovered"
-              body="Approved profiles are visible to the clubs and scouts we work with."
+              body="Approved players are visible to clubs and scouts."
             />
           </SimpleGrid>
         </Container>
       </Box>
 
-      <Box bg="gold.50" py={10}>
-        <Container maxW="900px">
-          <Heading as="h2" size="md" textAlign="center" mb={6}>
+      {/* What we do — photo cards, one accent color per card. */}
+      <Box bg="gold.50" py={{ base: 12, md: 16 }}>
+        <Container maxW="1000px">
+          <Heading as="h2" size="lg" textAlign="center" mb={10}>
             What we do
           </Heading>
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={5}>
-            <InfoCard
-              accent="gold.500"
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
+            <ServiceCard
               image="/images/services/full-player-support.avif"
+              accent="brand.500"
               title="Full player support"
-              body="The complete package — day-to-day mental and sporting support alongside every other service."
+              body="Day-to-day mental and sporting support alongside every service."
             />
-            <InfoCard
-              accent="gold.500"
+            <ServiceCard
               image="/images/services/trial-placements.avif"
+              accent="gold.500"
               title="Trial placements"
-              body="Putting your profile in front of clubs and organizations offering trial spots."
+              body="Your profile in front of clubs offering trial spots."
             />
-            <InfoCard
-              accent="gold.500"
+            <ServiceCard
               image="/images/services/match-reporting.avif"
+              accent="sky.500"
               title="Match reporting"
-              body="Your performances, organized clearly for communication with clubs."
+              body="Your performances, organized clearly for clubs."
             />
-            <InfoCard
-              accent="gold.500"
+            <ServiceCard
               image="/images/services/contract-support.avif"
+              accent="brand.500"
               title="Contract support"
-              body="Presenting your profile to professional football organizations."
+              body="Presenting you to professional football organizations."
             />
-            <InfoCard
-              accent="gold.500"
+            <ServiceCard
               image="/images/services/career-advice.avif"
+              accent="gold.500"
               title="Career advice"
-              body="Know your goal, and know the steps it takes to get there."
+              body="Know your goal and the steps it takes to get there."
             />
           </SimpleGrid>
         </Container>
       </Box>
 
-      <Box bg="sky.50" py={10}>
+      {/* Big closing call-to-action, same gradient as the hero. */}
+      <Box
+        bgGradient="linear(to-r, sky.500, brand.500)"
+        color="white"
+        textAlign="center"
+        py={{ base: 12, md: 16 }}
+        px={4}
+      >
+        <Heading as="h2" size="lg" mb={3}>
+          Ready for your next step?
+        </Heading>
+        <Text mb={6} color="whiteAlpha.900">
+          Registration takes a few minutes and it's free.
+        </Text>
+        <Button
+          as={RouterLink}
+          to="/register"
+          size="lg"
+          bg="white"
+          color="ink.500"
+          borderRadius="full"
+          px={10}
+          _hover={{ bg: 'brand.50' }}
+        >
+          Get started
+        </Button>
+      </Box>
+
+      <Box bg="sky.50" py={{ base: 12, md: 16 }}>
         <Container maxW="900px">
-          <Heading as="h2" size="md" textAlign="center" mb={6}>
+          <Heading as="h2" size="lg" textAlign="center" mb={8}>
             Contact
           </Heading>
           <Box
             as="form"
             bg="white"
-            borderRadius="md"
+            borderRadius="xl"
+            boxShadow="md"
             p={{ base: 5, md: 8 }}
             maxW="480px"
             mx="auto"
@@ -312,10 +342,7 @@ export default function HomePage() {
             <VStack spacing={4} align="stretch">
               <FormControl isRequired>
                 <FormLabel>First name</FormLabel>
-                <Input
-                  value={contact.firstName}
-                  onChange={updateField('firstName')}
-                />
+                <Input value={contact.firstName} onChange={updateField('firstName')} />
               </FormControl>
               <FormControl isRequired>
                 <FormLabel>Last name</FormLabel>
@@ -341,26 +368,8 @@ export default function HomePage() {
         </Container>
       </Box>
 
-      {/* Footer — full width again, same reasoning as the hero. */}
-      <Box as="footer" bg="ink.500" color="white" textAlign="center" py={10} px={4}>
-        <Flex
-          align="center"
-          justify="center"
-          w="2.4rem"
-          h="2.4rem"
-          borderRadius="full"
-          border="2px solid white"
-          fontWeight="bold"
-          fontSize="0.8rem"
-          mx="auto"
-          mb={3}
-        >
-          PA
-        </Flex>
-        <Text fontSize="lg" mb={2}>
-          Your next step starts here.
-        </Text>
-        <Text fontSize="xs" color="gray.500">
+      <Box as="footer" bg="ink.500" color="white" textAlign="center" py={8} px={4}>
+        <Text fontSize="sm" color="gray.400">
           &copy; {new Date().getFullYear()} Your Football Agency
         </Text>
       </Box>
