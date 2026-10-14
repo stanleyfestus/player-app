@@ -1,12 +1,21 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, BadRequestException, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({ origin: process.env.FRONTEND_URL || '*' });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ 
+    whitelist: true, 
+    transform: true,
+    exceptionFactory: (errors) => {
+      const messages = errors.flatMap(err => Object.values(err.constraints ?? {}))
+      new Logger('ValidationPipe').warn(`Validation failed: ${messages.join(', ')}`);
+      return new BadRequestException(errors);
+
+    },
+  }));
 
   // This is what makes the frontend's types generation possible: Nest
   // reads every DTO and every @Api... decorator below and builds a full
